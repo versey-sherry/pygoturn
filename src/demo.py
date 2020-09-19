@@ -8,13 +8,22 @@ import cv2
 from test import GOTURN
 
 #navigate to src directory
-#python demo.py -w /Users/slin/Desktop/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Subway -o True
-#python demo.py -w /Users/slin/Desktop/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Basketball_c -o True
-#python demo.py -w /Users/slin/Desktop/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Bolt -o True
-#python demo.py -w /Users/slin/Desktop/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Man -o True
-#python demo.py -w /Users/slin/Desktop/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Trans -o True
-#python demo.py -w /Users/slin/Desktop/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/basketball-16 -o True
-#python demo.py -w /Users/slin/Desktop/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/cat-20 -o True
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Subway -o True
+#mean iou of the sequence is 13.53 %
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Biker -o True
+#mean iou of the sequence is 39.76 %
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Panda -o True
+#mean iou of the sequence is 19.02 %
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/OTB/Trans -o True
+#mean iou of the sequence is 38.1 %
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/LASOT/basketball-16 -o True
+#mean iou of the sequence is 8.43 %
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/LASOT/bird-7 -o True
+#mean iou of the sequence is 70.23 %
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/LASOT/bird-11 -o True
+#mean iou of the sequence is 38.14 %
+#python demo.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/LASOT/cat-20 -o True
+#mean iou of the sequence is 38.04 %    
 
 args = None
 parser = argparse.ArgumentParser(description='GOTURN Testing')
@@ -66,9 +75,9 @@ def save(im, bb, gt_bb, idx):
     # plot GOTURN predictions with red rectangle
     im = cv2.rectangle(im, (bb[0], bb[1]), (bb[2], bb[3]),
                        (0, 0, 255), 2)
-    # plot annotations with white rectangle
+    # plot annotations with green rectangle
     im = cv2.rectangle(im, (gt_bb[0], gt_bb[1]), (gt_bb[2], gt_bb[3]),
-                       (255, 255, 255), 2)
+                       (0, 255, 0), 2)
     save_path = os.path.join(args.save_directory, str(idx)+'.jpg')
     cv2.imwrite(save_path, im)
 
@@ -76,6 +85,7 @@ def save(im, bb, gt_bb, idx):
 def main(args):
     cuda = torch.cuda.is_available()
     device = torch.device('cuda:0' if cuda else 'cpu')
+    print(args.data_directory)
     tester = GOTURN(args.data_directory,
                     args.model_weights,
                     device)
@@ -90,9 +100,9 @@ def main(args):
     im = cv2.cvtColor(tester.img[0][0], cv2.COLOR_RGB2BGR)
     bb = [int(val) for val in tester.prev_rect]
     gt_bb = [int(val) for val in tester.prev_rect]
-    #using the first frame of gt as the initial frame, draw it with red
+    #using the first frame of gt as the initial frame, draw it with green
     im = cv2.rectangle(im, (gt_bb[0], gt_bb[1]), (gt_bb[2], gt_bb[3]),
-                       (0, 0, 255), 3)
+                       (0, 255, 0), 2)
 
     if args.writeout:
         #write out as video
@@ -108,7 +118,8 @@ def main(args):
     tester.model.eval()
 
     # loop through sequence images
-    for i in range(min(100,tester.len)):
+    iou_array = []
+    for i in range(min(300,tester.len)):
     #for i in range(tester.len):
         start = time.time()
         # get torch input tensor
@@ -125,15 +136,16 @@ def main(args):
         im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
         bb = [int(val) for val in bb]  # GOTURN output
         gt_bb = [int(val) for val in gt_bb]  # groundtruth box
-        # plot GOTURN predictions with green box
+        # plot GOTURN predictions with red rectangle
         im = cv2.rectangle(im, (bb[0], bb[1]), (bb[2], bb[3]),
-                           (0, 255, 0), 3)
-        # plot annotations with red rectangle
+                           (0, 0, 255), 2)
+        # plot annotations with green rectangle
         im = cv2.rectangle(im, (gt_bb[0], gt_bb[1]), (gt_bb[2], gt_bb[3]),
-                           (0,0,255), 3)
+                           (0,255,0), 2)
         #put IOU on the video
         text = 'Frame {}: IoU is {}%'.format(i+2, round((axis_aligned_iou(gt_bb, bb) *100),2))
         im = cv2.putText(im, text, (30,30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,255,0), 2, cv2.LINE_AA) 
+        iou_array.append(axis_aligned_iou(gt_bb, bb))
 
 
         if args.writeout:
@@ -153,10 +165,12 @@ def main(args):
         size = (width, height)
         save_path = os.path.join(args.save_directory, 'output'+file_name+'.avi')
         print("Saved to", save_path)
-        out = cv2.VideoWriter(save_path,cv2.VideoWriter_fourcc(*'DIVX'), 30, size)
+        out = cv2.VideoWriter(save_path,cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
         for i in range(len(img_array)):
             out.write(img_array[i])
         out.release()
+        mean_iou =  round(sum(iou_array)/len(iou_array), 4)
+        print('mean iou of the sequence is', round(mean_iou *100,2), '%')
 
 
 if __name__ == "__main__":

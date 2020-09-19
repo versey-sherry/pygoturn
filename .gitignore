@@ -1,3 +1,7 @@
 *.pyc
 data/
 .DS_Store
+result/
+./data
+*.tar
+data
