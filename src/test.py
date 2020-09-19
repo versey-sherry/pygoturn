@@ -36,7 +36,7 @@ class GOTURN:
             model_path, map_location=lambda storage, loc: storage)
         self.model.load_state_dict(checkpoint['state_dict'])
         self.model.to(device)
-        frames = os.listdir(root_dir + '/img')
+        frames = [file for file in os.listdir(root_dir + '/img') if'jpeg' in file or 'jpg' in file]
         frames = [root_dir + "/img/" + frame for frame in frames]
         self.len = len(frames)-1
         frames = np.array(frames)
