@@ -47,6 +47,10 @@ class GOTURN:
         except:
             f = open(root_dir + '/groundtruth.txt')
         lines = f.readlines()
+        #print('frame length is', self.len)
+        #print('gt length is', len(lines))
+        #choose min between gt and the frame for evaluation
+        self.len = min(self.len, len(lines)-1)
         lines[0] = re.sub('\t', ',', lines[0])
         lines[0] = re.sub(' +', ',', lines[0])
         init_bbox = lines[0].strip().split(',')
