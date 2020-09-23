@@ -1,4 +1,4 @@
-name: pysot
+name: pygoturn
 channels:
   - pytorch
   - conda-forge
@@ -119,4 +119,3 @@ dependencies:
     - tensorboardx==2.1
     - tqdm==4.48.2
     - yacs==0.1.8
-prefix: /home/slin/miniconda3/envs/pysot
