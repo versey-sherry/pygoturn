@@ -32,6 +32,21 @@ tensorboardX==1.6
 ```
 To install all the packages, do `pip3 install -r requirements.txt`.
 
+Alternatively, you can creating an conda environment from an ``environment.yml`` file
+```
+conda env create -f environment.yml
+```
+The first line of the ``yml`` file sets the new environment's name. For more details see [Conda Documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file)
+
+Activate the new environment
+```
+conda activate pygoturn
+```
+Verify the new environment
+```
+conda env list
+```
+
 ## Demo
 
 ### [Download pretrained model](https://drive.google.com/file/d/1szpx3J-hfSrBEi_bze3d0PjSfQwNij7X/view?usp=sharing)
@@ -39,18 +54,65 @@ To install all the packages, do `pip3 install -r requirements.txt`.
 Navigate to `pygoturn/src` and do:
 
 ```
-python3 demo.py -w /path/to/pretrained/model
+python3 demo.py -w /path/to/pretrained/model -d /path/to/video_dir -o True
 ```
 
-Images with bounding box predictions will be saved in `pygoturn/result` directory.
+Images with bounding box predictions will be saved in `pygoturn/result` directory or other directory specified with `-s` flag.
 
 Arguments:
 
-`-w / --model-weights`: Path to a PyTorch pretrained model checkpoint.   
-`-d / --data-directory`: Path to a tracking sequence which follows [OTB format](http://cvlab.hanyang.ac.kr/tracker_benchmark/datasets.html).   
-`-s / --save-directory`: Directory to save sequence images with predicted bounding boxes.   
+`-w / --model-weights`: Path to a PyTorch pretrained model checkpoint.
 
-## Benchmark
+`-d / --data-directory`: Path to a tracking sequence which follows [OTB format](http://cvlab.hanyang.ac.kr/tracker_benchmark/datasets.html).
+
+
+`-s / --save-directory`: Directory to save sequence images with predicted bounding boxes. Default is `pygoturn/result` directory.
+
+
+`-o / --writeout`: Binary flag for outputting the sequence images with predicted bounding boxes.
+
+## Produce Prediction Results for Multiple Videos
+
+Navigate to `pygoturn/src` and do:
+
+```
+python3 eval_benchmark.py -w /path/to/pretrained/model -s /path/to/result -d /path/to/video_dir
+```
+Prediction results with same format <x>, <y>, <w>, <h> will be saved in `pygoturn/result` directory or other directory specified with `-s` flag.
+
+Arguments:
+
+`-w / --model-weights`: Path to a PyTorch pretrained model checkpoint.
+
+`-d / --data-directory`: Path to the directory that has tracking sequences which follows [OTB format](http://cvlab.hanyang.ac.kr/tracker_benchmark/datasets.html).
+
+`-s / --save-directory`: Directory to save sequence images with predicted bounding boxes. Default is `pygoturn/result` directory
+
+All the tracking sequences need to be at the same level as follow
+```
+./data
+   ├── VideoA                         # Arbitrary sequence name
+   │   ├── img                        # Directory that has all the frames
+   │   ├── groundtruth.txt            # Txt file of ground truth
+   ├── VideoB                         # Arbitrary sequence name
+   │   ├── img                        # Directory that has all the frames
+   │   ├── groundtruth.txt            # Txt file of ground truth
+   ├── VideoC                         # Arbitrary sequence name
+   │   ├── img                        # Directory that has all the frames
+   │   ├── groundtruth.txt            # Txt file of ground truth
+```
+To move sub directories up a level, you can do the following:
+
+1. Verify finding the sub directories correctly
+```
+find . -maxdepth 2  -print
+```
+
+2. Move the sub directories up
+```
+find . -maxdepth 2  -print -exec mv {} . \;
+```
+## Alternative Evaluation
 
 To evaluate PyTorchGOTURN on OTB50 and OTB100, follow the steps below:
 
