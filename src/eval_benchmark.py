@@ -102,7 +102,7 @@ def main(args):
             tester.prev_rect = bb
             bb = [int(val) for val in bb]  # GOTURN output
             print('bounding box is', bb)
-            result_list.append([i+2, bb[0], bb[1], bb[2]-bb[0], bb[3]-bb[1], 1])
+            result_list.append([i+2, bb[0], bb[1], bb[2]-bb[0], bb[3]-bb[1]])
         
         output_file = os.path.join(args.save_directory, video_list[a]+'.txt')
         with open(output_file, 'w') as file:
