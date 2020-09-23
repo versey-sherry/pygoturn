@@ -8,7 +8,8 @@ import cv2
 from test import GOTURN
 
 #navigate to src directory
-#python eval_benchmark.py -w /Users/slin/Desktop/tracking_repo/pygoturn/src/pytorch_goturn.pth.tar -d ../data/LS
+#python eval_benchmark.py -w pytorch_goturn.pth.tar -s ../result/LaSOT/goturn -d ../LaSOT
+#python eval_benchmark.py -w pytorch_goturn.pth.tar -s ../result/TB-100/goturn -d ../TB-100
 
 args = None
 parser = argparse.ArgumentParser(description='GOTURN Testing')
@@ -69,15 +70,16 @@ def save(im, bb, gt_bb, idx):
 def main(args):
     cuda = torch.cuda.is_available()
     device = torch.device('cuda:0' if cuda else 'cpu')
+    print('current device is', device)
     print(args.data_directory)
     #list the name of all the videos
     video_list = [file for file in os.listdir(args.data_directory) if not file.startswith('.')]
-    print(video_list)
+    #print(video_list)
     time_list = []
 
     a = 0
     for a in range(len(video_list)):
-        print(video_list[a])
+        print('current video is',video_list[a])
         current_dir = os.path.join(args.data_directory,video_list[a])
         result_list = []
 
@@ -88,7 +90,7 @@ def main(args):
             os.makedirs(args.save_directory)
 
         bb = bb = [int(val) for val in tester.prev_rect]
-        result_list.append([1, bb[0], bb[1], bb[2]-bb[0], bb[3]-bb[1], 1])
+        result_list.append([1, bb[0], bb[1], bb[2]-bb[0], bb[3]-bb[1]])
 
         tester.model.eval()
         video_start = time.time()
@@ -99,13 +101,14 @@ def main(args):
             bb = tester.get_rect(sample)
             tester.prev_rect = bb
             bb = [int(val) for val in bb]  # GOTURN output
-            #print('bounding box is', bb)
+            print('bounding box is', bb)
             result_list.append([i+2, bb[0], bb[1], bb[2]-bb[0], bb[3]-bb[1], 1])
         
-        output_file = os.path.join(args.save_directory, 'GOTURN'+video_list[a]+'_result.txt')
+        output_file = os.path.join(args.save_directory, video_list[a]+'.txt')
         with open(output_file, 'w') as file:
             for det in result_list:
-                det = '{}, {}, {}, {}, {}, {}'.format(det[0], det[1], det[2], det[3], det[4], det[5])
+                print('result is', det)
+                det = '{}, {}, {}, {}'.format(det[1], det[2], det[3], det[4])
                 print(det)
                 file.write('%s\n' % str(det))
         print('total consumed time is', time.time()-video_start, 'second')
