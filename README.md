@@ -112,6 +112,7 @@ find . -maxdepth 2  -print
 ```
 find . -maxdepth 2  -print -exec mv {} . \;
 ```
+The results can be evaluated via [track_eval](https://github.com/versey-sherry/track_eval)
 ## Alternative Evaluation
 
 To evaluate PyTorchGOTURN on OTB50 and OTB100, follow the steps below:
