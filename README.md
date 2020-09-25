@@ -78,7 +78,7 @@ Navigate to `pygoturn/src` and do:
 ```
 python3 eval_benchmark.py -w /path/to/pretrained/model -s /path/to/result -d /path/to/video_dir
 ```
-Prediction results with same format <x>, <y>, <w>, <h> will be saved in `pygoturn/result` directory or other directory specified with `-s` flag.
+Prediction results with same format `<x>, <y>, <w>, <h>` will be saved in `pygoturn/result` directory or other directory specified with `-s` flag.
 
 Arguments:
 
