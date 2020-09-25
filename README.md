@@ -66,7 +66,7 @@ Arguments:
 `-d / --data-directory`: Path to a tracking sequence which follows [OTB format](http://cvlab.hanyang.ac.kr/tracker_benchmark/datasets.html).
 
 
-`-s / --save-directory`: Directory to save sequence images with predicted bounding boxes. Default is `pygoturn/result` directory.
+`-s / --save-directory`: Directory to save the prediction reuslts. Default is `pygoturn/result` directory.
 
 
 `-o / --writeout`: Binary flag for outputting the sequence images with predicted bounding boxes.
